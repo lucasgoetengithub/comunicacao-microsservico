@@ -1,16 +1,14 @@
-import UserRepository from "../repository/userRepository";
-import * as httpStatus from "../../../config/constants/httpStatus.js"
+import UserRepository from "../repository/userRepository.js";
+import * as httpStatus from "../../../config/constants/httpStatus.js";
+import UserException from "../exception/UserException.js";
 
-class UserSerice {
-    
+class UserService {
     async findByEmail(req){
         try {
             const { email } = req.params;
             this.validateRequestData(email);
-            let user = UserRepository.findByEmail(req);    
-            if (!user) {
-                 
-            } 
+            let user = await UserRepository.findByEmail(req);
+            this.validateUserNotFound(user);
             
             return {
                 status: httpStatus.SUCCESS,
@@ -24,17 +22,24 @@ class UserSerice {
         } catch (err) {
             return {
                 status: error.status ? error.status : httpStatus.INTERNAL_SERVER_ERROR,
-                message: err.status,
+                message: err.message,
             };
-        }
-        
-    }
+        }   
+    };
 
     validateRequestData(email) {
         if (!email) {
-            throw new Error("User email was not informed.");
+            throw new UserException(httpStatus.BAD_REQUEST, 
+                "User email was not informed.");
+        }
+    }
+
+    validateUserNotFound(user) {
+        if (!user) {
+            throw new Error(httpStatus.BAD_REQUEST, 
+                "User was not found.");
         }
     }
 }
 
-export default UserSerice();
+export default new UserService();
