@@ -25,7 +25,7 @@ class UserService {
             
         } catch (err) {
             return {
-                status: error.status ? error.status : httpStatus.INTERNAL_SERVER_ERROR,
+                status: err.status ? err.status : httpStatus.INTERNAL_SERVER_ERROR,
                 message: err.message,
             };
         }   
@@ -63,7 +63,7 @@ class UserService {
             }
         } catch (err) {
             return {
-                status: error.status ? error.status : httpStatus.INTERNAL_SERVER_ERROR,
+                status: err.status ? err.status : httpStatus.INTERNAL_SERVER_ERROR,
                 message: err.message,
             };
         }
