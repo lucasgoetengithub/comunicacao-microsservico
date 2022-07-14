@@ -19,4 +19,5 @@ public class Supplier {
 
     @Column(name="NAME", nullable = false)
     private String name;
+
 }

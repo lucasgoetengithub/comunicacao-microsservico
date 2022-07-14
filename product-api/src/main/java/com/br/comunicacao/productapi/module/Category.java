@@ -1,8 +1,11 @@
 package com.br.comunicacao.productapi.module;
 
+import com.br.comunicacao.productapi.dto.CategoryRequest;
+import com.br.comunicacao.productapi.dto.CategoryResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 
@@ -19,4 +22,10 @@ public class Category {
 
     @Column(name="DESCRIPTION", nullable = false)
     private String description;
+
+    public static Category of(CategoryRequest request) {
+        var category = new Category();
+        BeanUtils.copyProperties(request, category);
+        return category;
+    }
 }
