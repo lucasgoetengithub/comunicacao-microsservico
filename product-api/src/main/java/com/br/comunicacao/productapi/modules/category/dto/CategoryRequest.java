@@ -1,4 +1,4 @@
-package com.br.comunicacao.productapi.dto;
+package com.br.comunicacao.productapi.modules.category.dto;
 
 import lombok.Data;
 

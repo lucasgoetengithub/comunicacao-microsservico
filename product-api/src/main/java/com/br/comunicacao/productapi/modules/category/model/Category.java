@@ -1,7 +1,6 @@
-package com.br.comunicacao.productapi.module;
+package com.br.comunicacao.productapi.modules.category.model;
 
-import com.br.comunicacao.productapi.dto.CategoryRequest;
-import com.br.comunicacao.productapi.dto.CategoryResponse;
+import com.br.comunicacao.productapi.modules.category.dto.CategoryRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

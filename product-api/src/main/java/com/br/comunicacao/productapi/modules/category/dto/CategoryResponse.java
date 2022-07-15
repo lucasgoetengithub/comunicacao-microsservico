@@ -1,6 +1,6 @@
-package com.br.comunicacao.productapi.dto;
+package com.br.comunicacao.productapi.modules.category.dto;
 
-import com.br.comunicacao.productapi.module.Category;
+import com.br.comunicacao.productapi.modules.category.model.Category;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
