@@ -4,10 +4,9 @@ import com.br.comunicacao.productapi.modules.category.dto.CategoryRequest;
 import com.br.comunicacao.productapi.modules.category.dto.CategoryResponse;
 import com.br.comunicacao.productapi.modules.category.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/category")
@@ -17,7 +16,22 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public CategoryResponse save(@RequestBody CategoryRequest request){
+    public CategoryResponse save(@RequestBody CategoryRequest request) {
         return categoryService.save(request);
+    }
+
+    @GetMapping
+    public List<CategoryResponse> findAll(){
+        return categoryService.findAll();
+    }
+
+    @GetMapping("{id}")
+    public CategoryResponse findByIdResponse(@PathVariable Integer id){
+        return categoryService.findByIdResponse(id);
+    }
+
+    @GetMapping("description/{description}")
+    public List<CategoryResponse> findByName(@PathVariable String description){
+        return categoryService.findByDescription(description);
     }
 }
