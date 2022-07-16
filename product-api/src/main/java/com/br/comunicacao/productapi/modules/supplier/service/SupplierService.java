@@ -9,16 +9,46 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class SupplierService {
 
     @Autowired
     private SupplierRepository supplierRepository;
 
+    public SupplierResponse findByIdResponse(Integer id){
+        return SupplierResponse.of(findById(id));
+    }
+
+    public List<SupplierResponse> findAll(){
+        return supplierRepository
+                .findAll()
+                .stream()
+                .map(SupplierResponse::of)
+                .collect(Collectors.toList());
+    }
+
     public Supplier findById(Integer id){
+        if (ObjectUtils.isEmpty(id)) {
+            throw new ValidationException("The supplier id must be informed.");
+        }
+
         return supplierRepository
                 .findById(id)
-                .orElseThrow(() -> new ValidationException("There's no Supplier for the given ID."));
+                .orElseThrow(() -> new ValidationException("There's no supplier for the given ID."));
+    }
+
+    public List<SupplierResponse> findByName(String name){
+        if (ObjectUtils.isEmpty(name)){
+            throw new ValidationException("The supplier description must be informed.");
+        }
+        return supplierRepository
+                .findByNameIgnoreCaseContaining(name)
+                .stream()
+                .map(SupplierResponse::of)
+                .collect(Collectors.toList());
     }
 
     public SupplierResponse save(SupplierRequest request){
@@ -32,4 +62,6 @@ public class SupplierService {
             throw new ValidationException("The Supplier description was not informed.");
         }
     }
+
+
 }
