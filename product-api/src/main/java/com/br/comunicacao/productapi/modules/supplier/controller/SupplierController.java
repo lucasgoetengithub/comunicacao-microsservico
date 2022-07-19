@@ -1,5 +1,6 @@
 package com.br.comunicacao.productapi.modules.supplier.controller;
 
+import com.br.comunicacao.productapi.config.exception.SucessReponse;
 import com.br.comunicacao.productapi.modules.supplier.dto.SupplierRequest;
 import com.br.comunicacao.productapi.modules.supplier.dto.SupplierResponse;
 import com.br.comunicacao.productapi.modules.supplier.service.SupplierService;
@@ -33,5 +34,15 @@ public class SupplierController {
     @GetMapping("name/{name}")
     public List<SupplierResponse> findByName(@PathVariable String name){
         return supplierService.findByName(name);
+    }
+
+    @DeleteMapping("{id}")
+    public SucessReponse delete(@PathVariable Integer id){
+        return supplierService.delete(id);
+    }
+
+    @PutMapping("{id}")
+    public SupplierResponse update(@RequestBody SupplierRequest request, @PathVariable Integer id){
+        return supplierService.update(request, id);
     }
 }

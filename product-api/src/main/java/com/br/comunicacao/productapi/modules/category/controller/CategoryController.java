@@ -1,5 +1,6 @@
 package com.br.comunicacao.productapi.modules.category.controller;
 
+import com.br.comunicacao.productapi.config.exception.SucessReponse;
 import com.br.comunicacao.productapi.modules.category.dto.CategoryRequest;
 import com.br.comunicacao.productapi.modules.category.dto.CategoryResponse;
 import com.br.comunicacao.productapi.modules.category.service.CategoryService;
@@ -34,4 +35,15 @@ public class CategoryController {
     public List<CategoryResponse> findByName(@PathVariable String description){
         return categoryService.findByDescription(description);
     }
+
+    @DeleteMapping("{id}")
+    public SucessReponse delete(@PathVariable Integer id){
+        return categoryService.delete(id);
+    }
+
+    @PutMapping("{id}")
+    public CategoryResponse update(@RequestBody CategoryRequest request, @PathVariable Integer id){
+        return categoryService.update(request, id);
+    }
+
 }
