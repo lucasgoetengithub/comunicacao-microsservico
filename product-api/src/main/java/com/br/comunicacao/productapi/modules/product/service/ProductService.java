@@ -3,12 +3,10 @@ package com.br.comunicacao.productapi.modules.product.service;
 import com.br.comunicacao.productapi.config.exception.SucessReponse;
 import com.br.comunicacao.productapi.config.exception.ValidationException;
 import com.br.comunicacao.productapi.modules.category.service.CategoryService;
-import com.br.comunicacao.productapi.modules.product.dto.ProductQuantityDTO;
-import com.br.comunicacao.productapi.modules.product.dto.ProductRequest;
-import com.br.comunicacao.productapi.modules.product.dto.ProductResponse;
-import com.br.comunicacao.productapi.modules.product.dto.ProductStockDTO;
+import com.br.comunicacao.productapi.modules.product.dto.*;
 import com.br.comunicacao.productapi.modules.product.model.Product;
 import com.br.comunicacao.productapi.modules.product.repository.ProductRepository;
+import com.br.comunicacao.productapi.modules.sales.client.SalesClient;
 import com.br.comunicacao.productapi.modules.sales.dto.SalesConfirmationDTO;
 import com.br.comunicacao.productapi.modules.sales.enums.SalesStatus;
 import com.br.comunicacao.productapi.modules.sales.rabbitmq.SalesConfirmationSender;
@@ -41,6 +39,9 @@ public class ProductService {
 
     @Autowired
     SalesConfirmationSender salesConfirmationSender;
+
+    @Autowired
+    SalesClient salesClient;
 
     public ProductResponse findByIdResponse(Integer id){
         return ProductResponse.of(findById(id));
@@ -218,6 +219,17 @@ public class ProductService {
                         throw new ValidationException("The product ID and the quantity must be informed.");
                     }
                 });
+    }
+
+    public ProductSalesResponse findProductSales(Integer id){
+        var product = findById(id);
+        try {
+            var sales = salesClient.findSalesByProductId(id)
+                    .orElseThrow(() -> new ValidationException("The sales was not found by this product."));
+            return ProductSalesResponse.of(product, sales.getSalesIds());
+        }catch (Exception ex){
+            throw  new ValidationException("There was an error trying to get the product's sales.");
+        }
     }
 
 }
