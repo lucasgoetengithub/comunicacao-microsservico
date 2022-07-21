@@ -20,7 +20,6 @@ app.get('/api/status', (req, res) => {
 app.use(express.json());
 app.use(userRoutes);
 
-app.use(checkToken);
 
 app.listen(PORT, () => {
     console.info('Server started sucessfully at port ${PORT}')
