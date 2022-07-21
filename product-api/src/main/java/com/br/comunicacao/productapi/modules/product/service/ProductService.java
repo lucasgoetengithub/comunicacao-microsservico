@@ -3,21 +3,27 @@ package com.br.comunicacao.productapi.modules.product.service;
 import com.br.comunicacao.productapi.config.exception.SucessReponse;
 import com.br.comunicacao.productapi.config.exception.ValidationException;
 import com.br.comunicacao.productapi.modules.category.service.CategoryService;
+import com.br.comunicacao.productapi.modules.product.dto.ProductQuantityDTO;
 import com.br.comunicacao.productapi.modules.product.dto.ProductRequest;
 import com.br.comunicacao.productapi.modules.product.dto.ProductResponse;
 import com.br.comunicacao.productapi.modules.product.dto.ProductStockDTO;
 import com.br.comunicacao.productapi.modules.product.model.Product;
 import com.br.comunicacao.productapi.modules.product.repository.ProductRepository;
-import com.br.comunicacao.productapi.modules.supplier.dto.SupplierResponse;
-import com.br.comunicacao.productapi.modules.supplier.model.Supplier;
+import com.br.comunicacao.productapi.modules.sales.dto.SalesConfirmationDTO;
+import com.br.comunicacao.productapi.modules.sales.enums.SalesStatus;
+import com.br.comunicacao.productapi.modules.sales.rabbitmq.SalesConfirmationSender;
 import com.br.comunicacao.productapi.modules.supplier.service.SupplierService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+@Slf4j
 @Service
 public class ProductService {
 
@@ -30,6 +36,9 @@ public class ProductService {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    SalesConfirmationSender salesConfirmationSender;
 
     public ProductResponse findByIdResponse(Integer id){
         return ProductResponse.of(findById(id));
@@ -52,7 +61,7 @@ public class ProductService {
     }
 
     public List<ProductResponse> findByName(String name){
-        if (ObjectUtils.isEmpty(name)){
+        if (isEmpty(name)){
             throw new ValidationException("The product description must be informed.");
         }
         return productRepository
@@ -63,7 +72,7 @@ public class ProductService {
     }
 
     public List<ProductResponse> findBySupplierId(Integer supplierId){
-        if (ObjectUtils.isEmpty(supplierId)){
+        if (isEmpty(supplierId)){
             throw new ValidationException("The product supplier must be informed.");
         }
         return productRepository
@@ -74,7 +83,7 @@ public class ProductService {
     }
 
     public List<ProductResponse> findByCategoryId(Integer categoryId){
-        if (ObjectUtils.isEmpty(categoryId)){
+        if (isEmpty(categoryId)){
             throw new ValidationException("The product category must be informed.");
         }
         return productRepository
@@ -107,11 +116,11 @@ public class ProductService {
     }
 
     private void validateProductDataInformed(ProductRequest request){
-        if (ObjectUtils.isEmpty(request.getName())) {
+        if (isEmpty(request.getName())) {
             throw new ValidationException("The Product's description was not informed.");
         }
 
-        if (ObjectUtils.isEmpty(request.getQuantityAvailable())) {
+        if (isEmpty(request.getQuantityAvailable())) {
             throw new ValidationException("The Product's QuantityAvailable was not informed.");
         }
 
@@ -121,11 +130,11 @@ public class ProductService {
     }
 
     private void validateCategoryAndSupplierIdInformed(ProductRequest request){
-        if (ObjectUtils.isEmpty(request.getCategoryId())) {
+        if (isEmpty(request.getCategoryId())) {
             throw new ValidationException("The Category Id was not informed.");
         }
 
-        if (ObjectUtils.isEmpty(request.getSupplierId())) {
+        if (isEmpty(request.getSupplierId())) {
             throw new ValidationException("The Supplier Id was not informed.");
         }
     }
@@ -145,13 +154,61 @@ public class ProductService {
     }
 
     private void validateInformedId(Integer id){
-        if (ObjectUtils.isEmpty(id)) {
+        if (isEmpty(id)) {
             throw new ValidationException("The product id must be informed.");
         }
     }
 
     public void updateProductStock(ProductStockDTO productStockDTO){
+        try {
+            validateStockUpdateData(productStockDTO);
+            updateStock(productStockDTO);
+        }catch (Exception ex){
+            log.error("Error while trying to update stock for message with error {}", ex.getMessage(), ex);
+            var rejectMessage = new SalesConfirmationDTO(productStockDTO.getSalesId(), SalesStatus.REJECTED);
+            salesConfirmationSender.sendSalesConfirmationMessage(rejectMessage);
+        }
+    }
 
+    private void updateStock(ProductStockDTO productStockDTO) {
+        productStockDTO
+                .getProducts()
+                .forEach(salesProduct -> {
+                    var existingProduct = findById(salesProduct.getProductId());
+                    validateQuantityInStock(salesProduct,existingProduct);
+                    existingProduct.updateStock(salesProduct.getQuantity());
+                    productRepository.save(existingProduct);
+                    var approvedMessage = new SalesConfirmationDTO(productStockDTO.getSalesId(),
+                            SalesStatus.APPROVED);
+                    salesConfirmationSender.sendSalesConfirmationMessage(approvedMessage);
+                });
+    }
+
+    private void validateQuantityInStock(ProductQuantityDTO salesProduct, Product existingProduct){
+        if (salesProduct.getQuantity() > existingProduct.getQuantityAvailable()) {
+            throw new ValidationException(
+                    String.format("The product %s is out of stock", existingProduct.getId())
+            );
+        }
+    }
+
+    private void validateStockUpdateData(ProductStockDTO productStockDTO){
+        if (isEmpty(productStockDTO) || isEmpty(productStockDTO.getSalesId())) {
+            throw new ValidationException("The product dara and sales ID must be informed.");
+        }
+
+        if (isEmpty(productStockDTO.getProducts())) {
+            throw new ValidationException("The sales products must be informed.");
+        }
+
+        productStockDTO
+                .getProducts()
+                .forEach(salesProduct -> {
+                    if (isEmpty(salesProduct.getQuantity())
+                            || isEmpty(salesProduct.getProductId())) {
+                        throw new ValidationException("The product ID and the quantity must be informed.");
+                    }
+                });
     }
 
 }
