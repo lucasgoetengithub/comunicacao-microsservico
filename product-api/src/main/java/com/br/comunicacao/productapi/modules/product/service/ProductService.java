@@ -232,4 +232,24 @@ public class ProductService {
         }
     }
 
+    public SucessReponse checkProductsStock(ProductCheckStockRequest productCheckStockRequest){
+        if (isEmpty(productCheckStockRequest) || isEmpty(productCheckStockRequest.getProducts())) {
+            throw new ValidationException("The request data must be informed.");
+        }
+        productCheckStockRequest
+                .getProducts()
+                .forEach(this::validateStock);
+        return SucessReponse.create("The stock is ok!");
+    }
+
+    private void validateStock(ProductQuantityDTO productQuantityDTO){
+        if (isEmpty(productQuantityDTO.getProductId()) || isEmpty(productQuantityDTO.getQuantity())) {
+            throw new ValidationException("Product ID and quantity must be informed.");
+        }
+        var product = findById(productQuantityDTO.getProductId());
+        if (productQuantityDTO.getQuantity() > product.getQuantityAvailable() ) {
+            throw new ValidationException(String.format("The product %s is out of stock.", product.getId()));
+        }
+    }
+
 }
