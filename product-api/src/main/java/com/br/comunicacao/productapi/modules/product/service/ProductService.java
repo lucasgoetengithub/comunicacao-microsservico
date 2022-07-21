@@ -5,6 +5,7 @@ import com.br.comunicacao.productapi.config.exception.ValidationException;
 import com.br.comunicacao.productapi.modules.category.service.CategoryService;
 import com.br.comunicacao.productapi.modules.product.dto.ProductRequest;
 import com.br.comunicacao.productapi.modules.product.dto.ProductResponse;
+import com.br.comunicacao.productapi.modules.product.dto.ProductStockDTO;
 import com.br.comunicacao.productapi.modules.product.model.Product;
 import com.br.comunicacao.productapi.modules.product.repository.ProductRepository;
 import com.br.comunicacao.productapi.modules.supplier.dto.SupplierResponse;
@@ -147,6 +148,10 @@ public class ProductService {
         if (ObjectUtils.isEmpty(id)) {
             throw new ValidationException("The product id must be informed.");
         }
+    }
+
+    public void updateProductStock(ProductStockDTO productStockDTO){
+
     }
 
 }

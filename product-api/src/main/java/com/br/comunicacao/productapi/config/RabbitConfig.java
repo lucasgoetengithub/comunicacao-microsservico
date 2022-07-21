@@ -13,19 +13,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    @Value("${api-config.rabbit.exchange.product}")
+    @Value("${app-config.rabbit.exchange.product}")
     private String productTopicExchange;
 
-    @Value("${api-config.rabbit.routingKey.product-stock}")
+    @Value("${app-config.rabbit.routingKey.product-stock}")
     private String productStockKey;
 
-    @Value("${api-config.rabbit.routingKey.sales-confirmation}")
+    @Value("${app-config.rabbit.routingKey.sales-confirmation}")
     private String salesConfirmationKey;
 
-    @Value("${api-config.rabbit.queue.product-stock}")
+    @Value("${app-config.rabbit.queue.product-stock}")
     private String productStockMq;
 
-    @Value("${api-config.rabbit.queue.sales-confirmation}")
+    @Value("${app-config.rabbit.queue.sales-confirmation}")
     private String salesConfirmationMq;
 
     @Bean
