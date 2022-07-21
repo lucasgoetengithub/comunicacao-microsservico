@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -192,6 +193,7 @@ public class ProductService {
         }
     }
 
+    @Transactional
     private void validateStockUpdateData(ProductStockDTO productStockDTO){
         if (isEmpty(productStockDTO) || isEmpty(productStockDTO.getSalesId())) {
             throw new ValidationException("The product dara and sales ID must be informed.");
