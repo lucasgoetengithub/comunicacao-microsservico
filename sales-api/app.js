@@ -4,6 +4,7 @@ import { connectMongoDB } from './src/config/db/mongoDbConfig.js';
 import { createInitialData } from './src/config/db/initialData.js';
 import checkToken from './src/config/auth/checkToken.js';
 import { connectRabbitMq } from './src/config/rabbitmq/rabbitConfig.js';
+import orderRoutes from './src/modules/sales/routes/OrderRoutes.js';
 
 import { sendProductStockUpdateQueue } from './src/modules/sales/model/product/rabbitmq/productStockUpdate.js'; 
 
@@ -15,7 +16,9 @@ connectMongoDB();
 createInitialData();
 connectRabbitMq();
 
-//app.use(checkToken);
+app.use(express.json());
+app.use(checkToken);
+app.use(orderRoutes);
 app.get('/teste', (req, res) => {
     try {
         sendProductStockUpdateQueue([

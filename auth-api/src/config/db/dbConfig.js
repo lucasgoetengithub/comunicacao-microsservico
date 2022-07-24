@@ -3,6 +3,7 @@ import Sequelize from "sequelize";
 const sequelize = new Sequelize("auth-db", "admin", "123456", {
     host: "localhost",
     dialect: "postgres",
+    port: "5434",
     quoteIdentifiers: false,
     define: {
         syncOnAssiociation: true,
