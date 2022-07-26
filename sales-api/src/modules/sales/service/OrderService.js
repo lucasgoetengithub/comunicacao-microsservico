@@ -108,10 +108,56 @@ class OrderService {
             };
         }
     }
+
+    async findAll(){
+        try {
+            const orders = await OrderRepository.findAll();
+            if (!orders) {
+                throw new OrderException(BAD_REQUEST, "No Orders were found.");
+            }
+            return {
+                status: SUCCESS,
+                orders,
+            }
+        } catch (err) {
+            return {
+                status: err.status ? err.status : INTERNAL_SERVER_ERROR,
+                message: err.message,
+            };
+        }
+    }
+
+    async findByProductId(req){
+        const { productId } = req.params;
+        try {
+            this.validateInformedProductId(productId);
+            const existingOrder = await OrderRepository.findByProductId(productId);
+            if (!existingOrder) {
+                throw new OrderException(BAD_REQUEST, "No Orders were found.");
+            }
+            return {
+                status: SUCCESS,
+                salesIds: existingOrder.map((order) => {
+                    return order.id;
+                }),
+            }
+        } catch (err) {
+            return {
+                status: err.status ? err.status : INTERNAL_SERVER_ERROR,
+                message: err.message,
+            };
+        }
+    }
     
     validateInformedId(id) {
         if(!id){
             throw new OrderException(BAD_REQUEST, "The Order id must be informed.");
+        }
+    }
+
+    validateInformedProductId(productId) {
+        if(!productId){
+            throw new OrderException(BAD_REQUEST, "The product id must be informed.");
         }
     }
 }
