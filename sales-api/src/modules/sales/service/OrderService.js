@@ -21,7 +21,7 @@ class OrderService {
             this.validateOrderData(orderData);
             const { authUser } = req;
             const { authorization } = req.headers;
-            let order = this.createInitialOrderData(orderData, authUser);
+            let order = this.createInitialOrderData(orderData, authUser, transactionid, serviceid);
             await this.validateProductStock(order, authorization, transactionid);
 
             let createdOrder = await OrderRepository.save(order);
@@ -46,14 +46,15 @@ class OrderService {
         }
     }
 
-    createInitialOrderData(orderData, authUser){
+    createInitialOrderData(orderData, authUser, transactionid, serviceid){
         return {
             status: PENDING,
             user: authUser,
             createdAt: new Date(),
             updatedAt: new Date(),
+            transactionid,
+            serviceid,
             products: orderData.products,
-            
         };
     }
 
@@ -125,7 +126,7 @@ class OrderService {
             }
 
             console.info(
-                `Reponse to GET order by ID ${id}: ${JSON.stringify(reponse)} | transactionID: ${transactionid} | serviceID ${serviceid}`
+                `response to GET order by ID ${id}: ${JSON.stringify(response)} | transactionID: ${transactionid} | serviceID ${serviceid}`
             );
             return response;
         } catch (err) {
@@ -152,7 +153,7 @@ class OrderService {
             }
 
             console.info(
-                `Reponse to GET all orders ${JSON.stringify(response)} | transactionID: ${transactionid} | serviceID ${serviceid}`
+                `response to GET all orders ${JSON.stringify(response)} | transactionID: ${transactionid} | serviceID ${serviceid}`
             );
             return response;
         } catch (err) {
@@ -183,7 +184,7 @@ class OrderService {
             }
 
             console.info(
-                `Reponse to GET orders by ProductID ${productId}: ${JSON.stringify(response)} | transactionID: ${transactionid} | serviceID ${serviceid}`
+                `response to GET orders by ProductID ${productId}: ${JSON.stringify(response)} | transactionID: ${transactionid} | serviceID ${serviceid}`
             );
             return response;
         } catch (err) {
