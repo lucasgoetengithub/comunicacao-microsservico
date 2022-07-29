@@ -6,8 +6,7 @@ export function connectMongoDB() {
     mongoose.connect(MONGO_DB_URL, {
         useNewUrlParser: true,
     });
-    console.info('passou')
-
+    
     mongoose.connection.on('connected', function() {
             console.info('The application connected to MongoDB successfully.')
     });
