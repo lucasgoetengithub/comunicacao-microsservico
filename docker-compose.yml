@@ -37,30 +37,66 @@ services:
   auth-api:
     build: './auth-api'
     container_name: auth-api
+    depends_on:
+      - auth-db
     environment:
       - PORT=8080
+      - API_SECRET=YXV0aC1hcGktc2VjcmV0LWNvbnRhaW5lci0xMjM0NTY=
+      - DB_HOST=auth-db
+      - DB_NAME=auth-db
+      - DB_USER=admin
+      - DB_PASSWORD=123456
+      - DB_PORT=5434
     ports:
       - 8080:8080
 
   product-api:
     build: './product-api'
     container_name: product-api
+    depends_on:
+      - product-db
+      - sales-rabbit
     environment:
       - PORT=8081
+      - API_SECRET=YXV0aC1hcGktc2VjcmV0LWNvbnRhaW5lci0xMjM0NTY=
+      - DB_HOST=product-db
+      - DB_NAME=product-db
+      - DB_USER=admin
+      - DB_PASSWORD=123456
+      - DB_PORT=5433
+      - RABBIT_MQ_HOST=sales-rabbit
+      - RABBIT_MQ_PROT=5672
+      - RABBIT_MQ_USER=guest
+      - RABBIT_MQ_PASSWORD=guest
+      - SALES_HOST=sales-api
+      - SALES_PORT=8082
     ports:
       - 8081:8081
 
   sales-api:
     build: './sales-api'
     container_name: sales-api
+    depends_on:
+      - sales-db
+      - sales-rabbit
     environment:
       - PORT=8082
+      - API_SECRET=YXV0aC1hcGktc2VjcmV0LWNvbnRhaW5lci0xMjM0NTY=
+      - MONGO_DB_URL=mongodb://admin:123456@sales-db:27017
+      - env.RABBIT_MQ_URL=amqp://sales-rabbit:5672
+      - PRODUCT_API_URL=http://product-api:8081/api/product;
+      - DB_HOST=product-db
+      - DB_NAME=auth-db
+      - DB_USER=admin
+      - DB_PASSWORD=123456
+      - DB_PORT=5434
     ports:
       - 8082:8082
 
   sales-rabbit:
     image: rabbitmq:3-management
     container_name: sales-rabbit
+    hostname: sales-rabbit
     ports:
       - 5672:5672
       - 25676:25676
