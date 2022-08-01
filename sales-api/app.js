@@ -12,12 +12,31 @@ import { sendProductStockUpdateQueue } from './src/modules/sales/model/product/r
 const app = express();
 const env = process.env;
 const PORT = env.PORT || 8082;
+const THREE_MINUTRES = 180000;
 
-connectMongoDB();
-createInitialData();
-connectRabbitMq();
+startApplication();
+
+async function startApplication() {
+    if (CONTAINER_ENV === env.NODE_ENV) {
+        console.info("Waiting for RabbitMQ and MongoDB containers to start...");
+        setInterval(() => {
+            connectMongoDB();
+            connectRabbitMq();
+        }, THREE_MINUTRES);
+    } else {
+        connectMongoDB();
+        createInitialData();
+        connectRabbitMq();
+    }
+}
 
 app.use(express.json());
+
+app.get("/api/initial-data", (req, res) => {
+    await createInitialData();
+    return res.json({ message: "Data created." });
+})
+
 app.use(tracing);
 app.use(checkToken);
 app.use(orderRoutes);

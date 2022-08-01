@@ -10,7 +10,11 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
         syncOnAssiociation: true,
         timestamps: false,
         underscored: true,
+        underscoredAll: true,
         freezeTableName: true
+    },
+    pool: {
+        acquire: 180000,
     },
 });
 
