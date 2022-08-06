@@ -1,6 +1,6 @@
 import express from "express";
-import * as db from "./src/config/db/initialData.js";
-import userRoutes from "./src/modules/user/routes/userRoutes.js";
+import {createInitialData} from "./src/config/db/initialData.js";
+import userRoutes from "./src/modules/user/routes/UserRoutes.js";
 import tracing from "./src/config/tracing.js";
 
 const app = express();
@@ -22,13 +22,13 @@ startApplication();
 
 function startApplication() {
     if (env.NODE_ENV !== CONTAINER_ENV) {
-        db.createInitialData();
+        createInitialData();
     }
 }
 
 app.get("/api/initial-data", (req, res) => {
-    db.createInitialData();
-    return res.json({ message: "Data created." });
+    createInitialData();
+    return res.json({ message: "Data created." })
 })
 
 app.use(tracing);

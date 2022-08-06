@@ -8,8 +8,8 @@ services:
     networks:
       - sales-network
     environment:
-      - MONGO_INITDB_ROOT_USERNAME="admin"
-      - MONGO_INITDB_ROOT_PASSWORD="123456"
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=123456
     ports:
       - 27017:27017
       - 28017:28017
@@ -85,14 +85,15 @@ services:
     depends_on:
       - sales-db
       - sales-rabbit
+      - product-api
     networks:
       - sales-network
     environment:
       - PORT=8082
       - API_SECRET=YXV0aC1hcGktc2VjcmV0LWNvbnRhaW5lci0xMjM0NTY=
-      - MONGO_DB_URL=mongodb://admin:123456@sales-db:27017
-      - RABBIT_MQ_URL=amqp://sales-rabbit:5672
-      - PRODUCT_API_URL=http://product-api:8081/api/product;
+      - MONGO_DB_URL=mongodb://admin:123456@sales-db:27017/sales
+      - RABBIT_MQ_URL=amqp://guest:guest@sales_rabbit:5672/
+      - PRODUCT_API_URL=http://product-api:8081/api/product
       - NODE_ENV=container
     ports:
       - 8082:8082
@@ -111,7 +112,7 @@ services:
       - DB_NAME=auth-db
       - DB_USER=admin
       - DB_PASSWORD=123456
-      - DB_PORT=5434
+      - DB_PORT=5432
       - NODE_ENV=container
     ports:
       - 8080:8080
